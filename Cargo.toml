@@ -1,0 +1,11 @@
+[package]
+
+name = "rust_accel_mma84"
+version = "0.0.1"
+authors = ["johnnyman727 <johnnyman727@gmail.com>","Kenneth Nierenhausen <kennethnierenhausen@gmail.com>"]
+
+[dependencies]
+unix_socket = "0.3.0"
+
+[dependencies.rust_tessel]
+git = "https://github.com/tessel/rust-tessel.git"
