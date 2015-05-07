@@ -8,4 +8,5 @@ authors = ["johnnyman727 <johnnyman727@gmail.com>","Kenneth Nierenhausen <kennet
 unix_socket = "0.3.0"
 
 [dependencies.rust_tessel]
-git = "https://github.com/tessel/rust-tessel.git"
+#git = "https://github.com/tessel/rust-tessel.git
+path = "../rust-tessel"

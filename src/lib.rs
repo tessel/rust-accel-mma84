@@ -1,11 +1,9 @@
 #![allow(dead_code)]
 extern crate unix_socket;
-use unix_socket::UnixStream;
 
 extern crate rust_tessel;
 use rust_tessel::TesselPort;
 use rust_tessel::Action;
-use std::path::Path;
 
 // Register addresses
 const VALID_CHIP_ID: u8 =         42;
@@ -114,26 +112,6 @@ impl Accelerometer {
     }
   }
 
-  // Read a specified number of bytes starting at addr register
-  // TODO get working for multiple bytes
-  pub fn read_registers(&mut self, addr: u8, bytes: u8) -> Result<u8, &'static str> {
-    let mut read_data = [0];
-    // read from the provided register addr
-    let res = self.port.run(&mut [
-      Action::enable_i2c(),
-      Action::start(0x0 | I2C_ADDRESS << 1),
-      Action::tx(&[addr]),
-      Action::start(0x1 | I2C_ADDRESS << 1),
-      Action::rx(&mut read_data),
-      Action::stop(),
-    ]);
-    // if there was an error report it, otherwise return the read data
-    match res {
-      Ok(_) => Ok(bytes),
-      Err(_) => Err("Unable to read register"),
-    }
-  }
-
   // Gets the acceleration from the device, outputs as array [x, y, z]
   pub fn get_acceleration(&mut self, accel: &mut[u16]) {
     let mut accel_raw = [0;6];
@@ -151,7 +129,7 @@ impl Accelerometer {
       g_count = g_count >> 4;
 
       if accel_raw[i*2] > 0x7F {
-        g_count = (1 + 0xFFF - g_count);
+        g_count = 1 + 0xFFF - g_count;
       }
 
       g_count / ((1<<12)/(2*2*(self.scale_range as u16)));
@@ -217,9 +195,6 @@ impl Accelerometer {
     // get the index of the closest available rate
     let idx = self.available_output_rates().iter().position(|x| *x == self.output_rate).unwrap();
 
-    // if output rate is not found return an error
-    if idx < 0 { return Err("Invalid output rate"); }
-
     // read the register containing the output rate
     let mut reg_current_state = try!(self.read_register(CTRL_REG1));
 
@@ -266,6 +241,7 @@ impl Accelerometer {
 
 }
 
+
 #[cfg(test)]
 mod test {
 
@@ -302,12 +278,7 @@ mod test {
     // let port = super::tessel::TesselPort::new(&super::std::old_path::Path::new("/var/run/tessel/port_a"));
     // let mut accel = Accelerometer::new(port);
     // let mut res_read = accel.read_register(super::CTRL_REG1);
-    // TODO write test
-  }
-
-  #[test]
-  fn test_read_registers() {
-    // assert!(false);
+    // TODO: write test
   }
 
   #[test]
